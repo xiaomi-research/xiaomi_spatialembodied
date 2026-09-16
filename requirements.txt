@@ -1,0 +1,69 @@
+# Xiaomi-SpatialEmbodied runtime / training dependencies.
+#
+# The versions below mirror the `requires=` declarations in the MS-Swift model
+# registration files (see xiaomi_spatialembodied/3DA/*/plugin/*_register.py) and the imports in
+# xiaomi_spatialembodied/3DA/my_qwen3_vggt_xattnv2/modeling_qwen3_vl_moe_vggt.py.
+#
+# NOTE ON TRANSFORMERS: Qwen3-VL (including the MoE variant) was introduced in
+# transformers 4.57, and the model code imports from
+# `transformers.models.qwen3_vl_moe`. Anything older fails at import time.
+
+# --- Core ---
+torch>=2.4.0
+torchvision>=0.19.0
+transformers>=4.57.1
+qwen_vl_utils>=0.0.14
+Pillow>=10.0.0
+
+# --- Training / inference framework ---
+# `ms-swift` is installed from source in most setups; pin it to the revision you tested.
+ms-swift
+deepspeed
+
+# --- Video decoding (declared in the model registration `requires=`) ---
+decord
+
+# --- EIEA inference only ---
+peft==0.14.0
+aenum
+sentencepiece
+protobuf
+
+# --- Evaluation only ---
+# vLLM pulls its own torch build and will override the pin above; install it in a
+# separate environment if you need it.
+# vllm
+
+# --- tools/ (data conversion, statistics, evaluation, visualization) ---
+# Every package below is imported by at least one script under tools/. They are split out
+# because the core model code above does not need them.
+pandas
+numpy
+pyarrow
+tqdm
+matplotlib
+seaborn
+scikit-learn
+PyYAML
+openpyxl
+opencv-python
+jsonlines
+tabulate
+nltk
+requests
+click
+datasets
+evaluate
+
+# --- NOT on PyPI: clone these separately, see tools/README_TOOLS.md ---
+# The following are imported by individual tools/ scripts but ship with external
+# benchmark repositories, not with this project. Each script's import error points at
+# the exact thing to clone.
+#
+#   strideqa_bench        -> STRIDE-QA-Bench   (convert_strideqa_bench.py, benchmark_sv2.py)
+#   evalcap               -> EvalCap           (eval_BDD-X.py, eval_omnidrive.py)
+#   utils (Ego3D)         -> Ego3D-Bench       (eval_ego3dbenchr1.py)
+#   utilsv2               -> MAPLM             (eval_maplmv2.py)
+#   evaluate_utils_v1     -> VLADBench         (eval_vladbenchv2.py)
+#   evaluate.* (toolkit)  -> DriveBench toolkit(eval_drivebench_withqwenv3.py)
+#   judge                 -> LingoQA           (eval_lingoQAv1.py)
