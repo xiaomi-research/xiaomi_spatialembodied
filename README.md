@@ -5,13 +5,15 @@
 <div align="center">
 
 [![arXiv](https://img.shields.io/badge/arXiv-2604.18484-B31B1B.svg?style=flat&logo=arxiv&logoColor=white)](https://arxiv.org/abs/2604.18484)
+[![ModelScope](https://img.shields.io/badge/ModelScope-Collection-624aff.svg?logo=modelscope&amp;logoColor=white)](https://www.modelscope.cn/models/xzhong/xembodied-v0)
 
 </div>
 
 <div align="center">
 
 **[<a href="README_CN.md">中文版</a>]**
-**[<a href="https://www.kaggle.com/models/zhongyangtony/xiaomi_spatialembodied/">Model Weights</a>]**
+**[<a href="https://www.modelscope.cn/models/xzhong/xembodied-v0">Model Weights</a>]**
+**[<a href="https://arxiv.org/abs/2604.18484">Paper</a>]**
 
 </div>
 
@@ -41,7 +43,7 @@ The released main checkpoint is the 3DA variant under `xiaomi_spatialembodied/3D
 ### Model Architecture
 
 <div align="center">
-  <img src="demo/model_architecture.png" alt="Xiaomi-SpatialEmbodied model architecture" width="70%">
+  <img src="demo/model_architecture.png" alt="Xiaomi-SpatialEmbodied model architecture" width="85%">
   <br>
   <em>Architecture of Xiaomi-SpatialEmbodied.</em>
 </div>
@@ -49,7 +51,7 @@ The released main checkpoint is the 3DA variant under `xiaomi_spatialembodied/3D
 ### Benchmark Overview
 
 <div align="center">
-  <img src="demo/radar_results.png" alt="Benchmark results radar chart" width="100%">
+  <img src="demo/radar_results.png" alt="Benchmark results radar chart" width="90%">
   <br>
   <em>Performance across spatial and 3D understanding, semantic reasoning, and embodied affordance benchmarks.</em>
 </div>
@@ -144,7 +146,7 @@ The best results among the listed models are **bolded**.
 
 | Model | Base Model | Code | Weights |
 |-------|-----------|------|---------|
-| Xiaomi-SpatialEmbodied (main) | Qwen3-VL-30B-A3B-Instruct | `xiaomi_spatialembodied/3DA/my_qwen3_vggt_xattnv2/` | [Kaggle](https://www.kaggle.com/models/zhongyangtony/xiaomi_spatialembodied/) |
+| Xiaomi-SpatialEmbodied (main) | Qwen3-VL-30B-A3B-Instruct | `xiaomi_spatialembodied/3DA/my_qwen3_vggt_xattnv2/` | [ModelScope](https://www.modelscope.cn/models/xzhong/xembodied-v0) |
 
 The two experimental connector variants under `xiaomi_spatialembodied/3DA/variants/` are ablation studies and have no released weights.
 
