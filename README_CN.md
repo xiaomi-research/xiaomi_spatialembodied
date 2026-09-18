@@ -5,13 +5,15 @@
 <div align="center">
 
 [![arXiv](https://img.shields.io/badge/arXiv-2604.18484-B31B1B.svg?style=flat&logo=arxiv&logoColor=white)](https://arxiv.org/abs/2604.18484)
+[![ModelScope](https://img.shields.io/badge/ModelScope-Collection-624aff.svg?logo=modelscope&amp;logoColor=white)](https://www.modelscope.cn/models/xzhong/xembodied-v0)
 
 </div>
 
 <div align="center">
 
 **[<a href="README.md">English</a>]**
-**[<a href="https://www.kaggle.com/models/zhongyangtony/xiaomi_spatialembodied/">模型权重</a>]**
+**[<a href="https://www.modelscope.cn/models/xzhong/xembodied-v0">模型权重</a>]**
+**[<a href="https://arxiv.org/abs/2604.18484">论文</a>]**
 
 </div>
 
@@ -144,7 +146,7 @@ Xiaomi-SpatialEmbodied 以 Qwen3-VL-30B-A3B-Instruct 为多模态语言骨干，
 
 | 模型 | 基座模型 | 代码位置 | 权重 |
 |------|----------|----------|------|
-| Xiaomi-SpatialEmbodied（主模型） | Qwen3-VL-30B-A3B-Instruct | `xiaomi_spatialembodied/3DA/my_qwen3_vggt_xattnv2/` | [Kaggle](https://www.kaggle.com/models/zhongyangtony/xiaomi_spatialembodied/) |
+| Xiaomi-SpatialEmbodied（主模型） | Qwen3-VL-30B-A3B-Instruct | `xiaomi_spatialembodied/3DA/my_qwen3_vggt_xattnv2/` | [ModelScope](https://www.modelscope.cn/models/xzhong/xembodied-v0) |
 
 `xiaomi_spatialembodied/3DA/variants/` 下的两个连接器变体为消融实验，不提供已发布权重。
 
