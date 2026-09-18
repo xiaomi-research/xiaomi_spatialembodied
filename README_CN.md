@@ -43,7 +43,7 @@ Xiaomi-SpatialEmbodied 以 Qwen3-VL-30B-A3B-Instruct 为多模态语言骨干，
 ### 模型结构
 
 <div align="center">
-  <img src="demo/model_architecture.png" alt="Xiaomi-SpatialEmbodied 模型结构图" width="70%">
+  <img src="demo/model_architecture.png" alt="Xiaomi-SpatialEmbodied 模型结构图" width="85%">
   <br>
   <em>Xiaomi-SpatialEmbodied 模型结构。</em>
 </div>
@@ -51,7 +51,7 @@ Xiaomi-SpatialEmbodied 以 Qwen3-VL-30B-A3B-Instruct 为多模态语言骨干，
 ### 基准结果概览
 
 <div align="center">
-  <img src="demo/radar_results.png" alt="基准测试结果图" width="100%">
+  <img src="demo/radar_results.png" alt="基准测试结果图" width="90%">
   <br>
   <em>模型在空间与 3D 理解、语义与推理、具身与可供性基准上的综合表现。</em>
 </div>
