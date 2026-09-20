@@ -150,18 +150,6 @@ Xiaomi-SpatialEmbodied 以 Qwen3-VL-30B-A3B-Instruct 为多模态语言骨干，
 
 `xiaomi_spatialembodied/3DA/variants/` 下的两个连接器变体为消融实验，不提供已发布权重。
 
-## 数据集
-
-Xiaomi-SpatialEmbodied 在多种具身与通用 VQA 数据集上训练：
-
-| 类别 | 数据集 |
-|------|--------|
-| 驾驶 VQA | LingoQA, SURDS, MapLM, DriveVQA, DriveLMM-o1, Omnidrive, BDD100K |
-| 通用 VQA | RefCOCO, Flickr, VQAv2, GQA|
-| 机器人操作 | RoboRefit, Cosmos-R1, RoboVQA |
-| 3D / 空间 | Visual Trace, VSI-590K, SPAR-7M, OpenSpaces |
-| 具身可交互性 | Part Affordance |
-
 ## 项目结构
 
 ```
