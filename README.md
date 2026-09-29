@@ -1,5 +1,5 @@
 <div align="center">
-<h1><b>Xiaomi-SpatialEmbodied</b></h1>
+<img src="demo/Xiaomi-SpatialEmbodied-Logo.png" alt="Xiaomi-SpatialEmbodied" width="700">
 </div>
 
 <div align="center">
@@ -18,6 +18,7 @@
 </div>
 
 <div align="center">
+<h2><b>Xiaomi-SpatialEmbodied</b></h2>
 <strong>A Xiaomi Autodrive and Robotics Team research project, developed with academic collaborators.</strong>
 </div>
 
