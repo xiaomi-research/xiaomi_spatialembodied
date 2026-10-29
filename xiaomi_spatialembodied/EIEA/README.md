@@ -7,11 +7,22 @@
 | 一份**预计算的 TOR 嵌入缓存** | `tor_embeds_cache_fb.pt`（默认加载）、`tor_embeds_cache.pt`（另一份，内容不同） |
 | 加载该缓存并注入 MLLM 的推理代码 | `models/qwen3_vl_vggt_register.py`、`models/qwen3_vl_moe_vggt.py` |
 | 示例入口 | `infer_with_EIEA_3D.py` |
+| EIEA 参考编码器 / 训练 / 评测 | `cue_encoder.py`、`corruption.py`、`train_eiea_30b.py`、`train_eiea_box.py`、`eval_eiea_30b.py` |
+| 随机掩码 + 加噪训练文档 | `docs/EIEA_TRAINING.md` |
+| 架构与序列顺序说明 | `docs/EIEA_ARCHITECTURE.md` |
+| CPU 单元测试 | `tests/test_eiea.py` |
 
-> **生成该缓存的 EIEA 流程暂未开源。**
-> 论文中 EIEA 通过具身工具（占据网格、3D 框、高精地图线索等）蒸馏出 TOR 嵌入；
-> 这条链路（工具模型 + 蒸馏）不在本次开源范围内，本目录只包含**消费**缓存的推理侧代码。
-> 缓存中的向量对应某一个具体场景，因此注入的是一段**固定的软提示**，而不是针对每张输入图实时生成的物理先验。
+> **缓存与 30B 维度不匹配的说明**：仓库自带的 `tor_embeds_cache*.pt` 是
+> **10×3584**（早期 Qwen2.5-VL-7B 原型），而 Qwen3-VL-30B-A3B 的词嵌入是
+> **2048** 维。注册文件现在会检测宽度：不匹配时打印 WARNING 并跳过自动注入
+> （仍可正常跑 3DA 推理），设置 `XEMB_EIEA_STRICT_CACHE=1` 可改为直接报错。
+> 需要真实 EIEA 注入时，请用 `XEMB_TOR_CACHE` 指向与 30B 匹配的
+> `10×2048` 缓存。
+>
+> **训练代码范围**：本目录新增的是论文 Stage-4 EIEA 的**参考训练/评测实现**
+> （box + BEV map + depth，随机模态掩码、部分线索、box 抖动、BEV/depth 加噪）。
+> 论文 Stage-4 产出的 EIEA 权重仍不在本次发布范围内；自带缓存仍是固定软提示，
+> 不是按图实时生成的物理先验。
 
 ## 快速开始
 
@@ -27,6 +38,34 @@ python xiaomi_spatialembodied/EIEA/infer_with_EIEA_3D.py
 
 默认测试图 `demo/nuscenes_0578_CAM_BACK.jpg` **未随仓库发布**，需要自行放置，
 或把 `INFER_CFG["image_paths"]` 改指到已有图片。
+
+## 训练 / 评测（新增）
+
+```bash
+# 1) 可选：把 Ego3D 行渲染成 5 通道 BEV
+python xiaomi_spatialembodied/EIEA/build_eiea_bev.py --split train \
+  --data results/eiea_box/train.json --out results/eiea_box
+
+# 2) 30B 冻结训练（box + BEV + depth，随机掩码 + 加噪）
+python xiaomi_spatialembodied/EIEA/train_eiea_30b.py \
+  --model_dir /dev/shm/models/xembodied-v0 \
+  --data results/eiea_box/train_bev.json \
+  --save results/eiea_box/eiea_30b_box_bev_depth.pt \
+  --corruption standard
+
+# 3) 7B SSR 代理版（2×4090 可跑）
+python xiaomi_spatialembodied/EIEA/train_eiea_box.py \
+  --data results/eiea_box/train_bev.json \
+  --save results/eiea_box/eiea_7b_box_bev_depth.pt --corruption standard
+
+# 4) 压力评测：clean / 丢模态 / 部分线索 / 抖动 / 遮挡 / 加噪 / wrong-scene
+python xiaomi_spatialembodied/EIEA/eval_eiea_30b.py \
+  --ckpt results/eiea_box/eiea_30b_box_bev_depth.pt \
+  --data results/eiea_box/val_bev.json --limit 100
+```
+
+细节、概率表、环境变量和论文口径差异见 `docs/EIEA_TRAINING.md` 与
+`docs/EIEA_ARCHITECTURE.md`。
 
 ## 注入是怎么发生的
 

@@ -36,7 +36,7 @@ _PROJECT_DIR = _PLUGIN_DIR.parent  # .../my_qwen3_vggt_xattn_mlp
 # This project lives at:
 #   ms-swift/examples/custom/4d-intelligence/my_qwen3_vggt_xattn_mlp/plugin/...
 # so parents[3] is `.../examples/custom`.
-_DEFAULT_VGGT_REPO_DIR = str(Path(__file__).resolve().parents[3] / "vggt")
+_DEFAULT_VGGT_REPO_DIR = str(Path(__file__).resolve().parents[1] / "vggt")
 
 if str(_PROJECT_DIR) not in sys.path:
     sys.path.insert(0, str(_PROJECT_DIR))

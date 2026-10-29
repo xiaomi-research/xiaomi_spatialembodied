@@ -25,7 +25,7 @@ from transformers.models.qwen2.modeling_qwen2 import Qwen2RMSNorm
 # Helpers
 # ==============================================================================
 
-_DEFAULT_VGGT_REPO_DIR = str(Path(__file__).resolve().parent.parent / "vggt")
+_DEFAULT_VGGT_REPO_DIR = str(Path(__file__).resolve().parents[2] / "3DA" / "my_qwen3_vggt_xattnv2")
 
 
 def _parse_torch_dtype(x: Optional[Union[str, torch.dtype]]) -> torch.dtype:

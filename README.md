@@ -36,7 +36,7 @@ The model is designed for cloud-side autonomous-driving and robotics VQA in data
 Xiaomi-SpatialEmbodied uses Qwen3-VL-30B-A3B-Instruct as its multimodal language backbone and adds trainable spatial and embodied interfaces. Images are processed by the native Qwen vision tower and a VGGT 3D foundation model; the resulting features are aligned before language reasoning, so spatial evidence participates in the model's internal representation rather than being appended as text or an auxiliary depth map.
 
 - **3D Adapter (3DA):** VGGT extracts multi-layer geometric features from the same camera image. `VGGTEmbeddingMerger` resamples the VGGT patch grid to Qwen's image-token grid, applies token merging, normalization, and MLP projection, then injects the result through a cross-attention residual (image tokens query VGGT tokens). This preserves the original sequence length while adding depth, layout, and relative-position cues.
-- **Efficient Image-Embodied Adapter (EIEA):** Outputs from embodied tools such as occupancy, 3D boxes, and map cues are distilled into a compact set of TOR embeddings. These embeddings are inserted at designated positions in the MLLM context, providing physical affordance priors without exposing raw tool traces to the language model. This repository ships the inference consumer and precomputed caches.
+- **Efficient Image-Embodied Adapter (EIEA):** Outputs from embodied tools such as occupancy, 3D boxes, and map cues are distilled into a compact set of TOR embeddings. These embeddings are inserted at designated positions in the MLLM context, providing physical affordance priors without exposing raw tool traces to the language model. This repository ships the reference cue encoder/trainer (box + BEV map + depth, random masking and noise), the inference consumer, and precomputed demo caches.
 - **Progressive domain curriculum:** Training proceeds from general multimodal capability to spatial/3D supervision and then embodied driving and manipulation data. The staged recipe reduces catastrophic forgetting and yields consistent gains across the 18 benchmarks reported in the paper.
 
 The released main checkpoint is the 3DA variant under `xiaomi_spatialembodied/3DA/my_qwen3_vggt_xattnv2/`; the connector variants in `xiaomi_spatialembodied/3DA/variants/` are provided for ablation studies.
@@ -139,7 +139,7 @@ The best results among the listed models are **bolded**.
 - [x] Release model code
 - [x] Release model weights
 - [x] Release inference code
-- [ ] Release training code
+- [x] Release training code (3DA 4-stage + EIEA reference trainer)
 - [x] Release evaluation code (`tools/eval_tools/`; the Table 3 embodied benchmarks that have no released scorer are marked in the table above)
 - [ ] Release dataset download
 
@@ -169,7 +169,7 @@ BaseModel-open/
 │   │   └── variants/                        # Experimental connector variants (not released)
 │   │       ├── my_qwen3_moe_vl_vggt_xattn_mlp/    # Configurable fusion + deepstack connectors
 │   │       └── my_qwen3_moe_vl_vggt_qformer/      # Q-Former main connector + deepstack MLP
-│   ├── EIEA/                                # Inference side only; see xiaomi_spatialembodied/EIEA/README.md
+│   ├── EIEA/                                # EIEA reference implementation; see xiaomi_spatialembodied/EIEA/README.md
 │   │   ├── README.md                        # Scope, quick start, known limitations
 │   │   ├── infer_with_EIEA_3D.py            # Loads the shipped TOR cache and runs inference
 │   │   ├── models/
@@ -266,7 +266,10 @@ EIEA shares the model's underlying structure with 3DA, together forming Xiaomi-S
 
 > **Scope of this release**: the repository ships a pre-computed TOR embedding cache
 > (`xiaomi_spatialembodied/EIEA/tor_embeds_cache*.pt`) together with the inference code that loads and
-> injects it. **The EIEA pipeline that produces such a cache is not open-sourced at this time.**
+> injects it, plus the reference cue encoder and masking/noise training recipe. The shipped cache is the
+> old 10x3584 demo cache and is **not** compatible with the 30B model's 2048-d embeddings; the register
+> warns and skips injection unless a matching cache is supplied. The paper's Stage-4 EIEA weights are not
+> part of this release.
 
 ## Environment Setup
 
@@ -325,7 +328,7 @@ Before running any inference script, configure the paths to your local model che
 | Trained model weights | Kaggle Model Scope | Full trainable weights: https://www.kaggle.com/models/zhongyangtony/xiaomi_spatialembodied/ |
 | VGGT register file | `xiaomi_spatialembodied/3DA/my_qwen3_vggt_xattnv2/plugin/qwen3_vl_moe_vggt_register.py` | MS-Swift model registration file (main model; variants live in `xiaomi_spatialembodied/3DA/variants/`) |
 | EIEA register file | `xiaomi_spatialembodied/EIEA/models/qwen3_vl_vggt_register.py` | Registration with physical embedding injection |
-| TOR embedding cache | `xiaomi_spatialembodied/EIEA/tor_embeds_cache_fb.pt` | Pre-computed cache shipped with the repo. The EIEA pipeline that generates it is not open-sourced yet. |
+| TOR embedding cache | `xiaomi_spatialembodied/EIEA/tor_embeds_cache_fb.pt` | Optional demo cache (10x3584). It is **not** compatible with the 30B model's 2048-d embeddings; the register warns/skips injection unless a matching `10xd_vlm` cache is supplied via `XEMB_TOR_CACHE`. |
 | second TOR cache | `xiaomi_spatialembodied/EIEA/tor_embeds_cache.pt` | Different contents from `_fb.pt`. `qwen3_vl_vggt_register.py` loads **only** `_fb.pt` (`TOR_EMBEDS_PATH`, line 32); swap that constant if you want to run the other cache. |
 
 ### Setup Steps
@@ -407,7 +410,7 @@ python infer_with_EIEA_3D.py
 
 This script shows how to load the TOR embedding cache shipped with the repository and inject it, combining the physical branch with the VGGT geometric branch for dual-cue inference. No extra pretrained models need to be downloaded.
 
-> ⚠️ The repository provides **one pre-computed TOR embedding cache** and the inference code that loads and injects it; **the EIEA pipeline that generates such a cache is not open-sourced at this time**. The demo therefore injects a **fixed soft prompt** rather than deriving physical priors per input image.
+> ⚠️ The demo cache is the old 10x3584 fixed soft prompt, not a per-image cue, and it is skipped on the 2048-d 30B model. The repository now also contains the EIEA reference encoder and a masking/noise training recipe (`xiaomi_spatialembodied/EIEA/train_eiea_30b.py`, `xiaomi_spatialembodied/EIEA/docs/EIEA_TRAINING.md`); the paper Stage-4 EIEA weights are not released.
 
 ## Tools
 

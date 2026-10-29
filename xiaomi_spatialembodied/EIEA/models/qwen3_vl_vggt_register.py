@@ -33,15 +33,16 @@ from swift.template.utils import findall
 # token — so matching on it never found the TOR positions.
 TOR_TOKEN_ID = 151643
 # <-- UPDATE: set to your TOR embedding cache file path -->
-TOR_EMBEDS_PATH = os.path.join(os.path.dirname(__file__), "tor_embeds_cache_fb.pt")
-TOR_HIDDEN_SIZE = 3584  # Model hidden size (fixed at 3584 for Qwen3-VL)
+TOR_EMBEDS_PATH = os.environ.get(
+    "XEMB_TOR_CACHE",
+    os.path.join(str(Path(__file__).resolve().parents[1]), "tor_embeds_cache_fb.pt"))
 
 # ==============================================================================
 # Paths
 # ==============================================================================
 _PLUGIN_DIR = Path(__file__).resolve().parent
 _PROJECT_DIR = _PLUGIN_DIR.parent
-_DEFAULT_VGGT_REPO_DIR = str(Path(__file__).resolve().parents[3] / "vggt")
+_DEFAULT_VGGT_REPO_DIR = str(Path(__file__).resolve().parents[2] / "3DA" / "my_qwen3_vggt_xattnv2")
 
 if str(_PROJECT_DIR) not in sys.path:
     sys.path.insert(0, str(_PROJECT_DIR))
@@ -432,6 +433,20 @@ class Qwen3VLVGGTTemplate(Qwen3VLTemplate):
             # Align precision and device
             tor_embeds = tor_embeds.to(dtype=model.dtype, device=model.device)
 
+            # The shipped demo cache is 10x3584 (early Qwen2.5-VL-7B prototype).
+            # It cannot be scattered into a 30B model whose word embeddings are
+            # 2048-d; skip auto-injection instead of failing inside masked_scatter.
+            expected = getattr(model.config.text_config, "hidden_size", None)
+            if expected is not None and int(tor_embeds.shape[-1]) != int(expected):
+                msg = (f"TOR cache width {tor_embeds.shape[-1]} != model "
+                       f"word-embedding size {expected} ({TOR_EMBEDS_PATH}); "
+                       "skipping auto-injection. Set XEMB_TOR_CACHE to a "
+                       "matching cache.")
+                if os.environ.get("XEMB_EIEA_STRICT_CACHE", "0") == "1":
+                    raise ValueError(msg)
+                print("WARNING:", msg)
+                return super().generate(model, *args, **kwargs)
+
             # The cache carries the token id its embeddings were built for; use it rather than
             # the module-level constant (which was `pad_token_id`, so the scatter never fired).
             tor_token_id = int(tor_token_id_vlm)
@@ -502,6 +517,9 @@ class Qwen3VLVGGTTemplate(Qwen3VLTemplate):
             kwargs["tor_embeds"] = tor_embeds
             kwargs["tor_token_id"] = tor_token_id
         except Exception as e:
+            if (os.environ.get("XEMB_EIEA_STRICT_CACHE", "0") == "1"
+                    and isinstance(e, ValueError)):
+                raise
             print(f"WARNING: TOR Embedding loading failed: {e}, continuing with native model")
 
         # 4. Call model generation
